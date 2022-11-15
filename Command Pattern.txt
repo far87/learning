@@ -1,1 +1,14 @@
 * Command Pattern
+
+The command pattern is a behavioural pattern consists of encapsulating a request or an action in a stand-alone object.
+It is used for different reasons: to paramaterize methods with different requests, to delay or queue request's executions,and to realize undoable operations.
+The Command object is the object that represents the abstraction layer between invoker and receiver.
+Invoker can be seen as the user requesting the action.
+Receiver is the class that contains business logic to execute the invocating action.
+Command is the class in the middle:it is called by the invoker , and in turn it calls receiver to execute the request.
+To be pratic, Command class is an abstract class or interface that expose one abstract method : execute(). 
+Every concrete command class extending command class, or implementing command interface, have an instance's variable of type Receiver.
+In its concrete implementation of abstract execute method, command concrete object calls specific method on reveiver variable.
+So , the command object is the only to know the needed operations to carry out a request, and invoker and receiver don't know nothing about their relation.
+In this scenario, the invoker can be seen like a button calling the execute method of the command object which it is wired.
+So, it's easy to understand that the invoker object has as instance's variable a command object.   
