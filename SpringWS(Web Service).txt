@@ -1,0 +1,16 @@
+* Spring Ws (web service)
+
+It is used to create a web service.
+This technology is focused around MessageDispatcher that dispatches incoming messages to endpoint. 
+Endpoint are generally annotated with @Endpoint and contain handling methods.
+These methods handle incoming XML request messages by inspecting part of the messages, generally the payload, and create 
+a response.Handling methods generally are annotated with @PayloadRoot, to indicate what sort of messages they can handle.
+
+Spring-WS's XML handling is extremely flexible, it supports a large amount of xml handling libraries, and also marshalling tachineques, like jaxb, to 
+transform XML in object.
+
+In general , it's required to configure MessageDispatcherServlet both as a servlet and as a DispatcherServlet.
+Then with @Endpoint class-level annotation and @payloadroot methods-level annotation we define what our service must do
+when a message with a pecific value of tag request payload root arrives.
+
+ 
