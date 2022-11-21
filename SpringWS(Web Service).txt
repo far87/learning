@@ -11,6 +11,7 @@ transform XML in object.
 
 In general , it's required to configure MessageDispatcherServlet both as a servlet and as a DispatcherServlet.
 Then with @Endpoint class-level annotation and @payloadroot methods-level annotation we define what our service must do
-when a message with a pecific value of tag request payload root arrives.
+when a message with a specific value of tag request payload root arrives.
 
  
+**DA CONTINUARE
