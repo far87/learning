@@ -13,5 +13,133 @@ In general , it's required to configure MessageDispatcherServlet both as a servl
 Then with @Endpoint class-level annotation and @payloadroot methods-level annotation we define what our service must do
 when a message with a specific value of tag request payload root arrives.
 
+To configure what it needs us we have to define a @configuration class that define the bean of MessageDispatcherServlet type, with url addresses it intercepts and passing it application context .
+Then we have to configure the bean of DefaultWsdl11Definition type.It is important because it receives the xsd schema we have generated for our service and exposes the wsdl to an appropriate url.This URL depends on settings and name 
+we give to this bean. 
+The xsd schema is passed to bean DefaultWsdl11Definition defining a bean of XsdSchema type and passing it to DefaultWsdl11Definition bean.
+
+ex of config class:
+*****
+
+        package com.example.producingwebservice;
+        
+        import org.springframework.boot.web.servlet.ServletRegistrationBean;
+        import org.springframework.context.ApplicationContext;
+        import org.springframework.context.annotation.Bean;
+        import org.springframework.context.annotation.Configuration;
+        import org.springframework.core.io.ClassPathResource;
+        import org.springframework.ws.config.annotation.EnableWs;
+        import org.springframework.ws.config.annotation.WsConfigurerAdapter;
+        import org.springframework.ws.transport.http.MessageDispatcherServlet;
+        import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
+        import org.springframework.xml.xsd.SimpleXsdSchema;
+        import org.springframework.xml.xsd.XsdSchema;
+        
+        @EnableWs
+        @Configuration
+        public class WebServiceConfig extends WsConfigurerAdapter {
+            @Bean
+            public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext applicationContext) {
+                MessageDispatcherServlet servlet = new MessageDispatcherServlet();
+                servlet.setApplicationContext(applicationContext);
+                servlet.setTransformWsdlLocations(true);
+                return new ServletRegistrationBean<>(servlet, "/ws/*");
+            }
+        
+            @Bean(name = "countries")
+            public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema countriesSchema) {
+                DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+                wsdl11Definition.setPortTypeName("CountriesPort");
+                wsdl11Definition.setLocationUri("/ws");
+                wsdl11Definition.setTargetNamespace("http://spring.io/guides/gs-producing-web-service");
+                wsdl11Definition.setSchema(countriesSchema);
+                return wsdl11Definition;
+            }
+        
+            @Bean
+            public XsdSchema countriesSchema() {
+                return new SimpleXsdSchema(new ClassPathResource("countries.xsd"));
+            }
+        }
+		
+*****		
+
+Let's remember all: an xml request incomes , our MessageDispatcher intercepts it , analyzes message and ,depends on message in it, dispatches request to a particular endpoint with a particular method.Endpoint constructs response and
+sends it back to client. Reponse comes back in xml format to our client. Remeber that response is also an element defined in xsd schema.
+
+example of xsd schema
+*****
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://spring.io/guides/gs-producing-web-service"
+           targetNamespace="http://spring.io/guides/gs-producing-web-service" elementFormDefault="qualified">
+
+    <xs:element name="getCountryRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getCountryResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="country" type="tns:country"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="country">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="population" type="xs:int"/>
+            <xs:element name="capital" type="xs:string"/>
+            <xs:element name="currency" type="tns:currency"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="currency">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GBP"/>
+            <xs:enumeration value="EUR"/>
+            <xs:enumeration value="PLN"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
+
+*****
+
+example of endpoint class
+*****
+package com.example.producingwebservice;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import io.spring.guides.gs_producing_web_service.GetCountryRequest;
+import io.spring.guides.gs_producing_web_service.GetCountryResponse;
+
+@Endpoint
+public class CountryEndpoint {
+    private static final String NAMESPACE_URI = "http://spring.io/guides/gs-producing-web-service";
+
+    private CountryRepository countryRepository;
+
+    @Autowired
+    public CountryEndpoint(CountryRepository countryRepository) {
+        this.countryRepository = countryRepository;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getCountryRequest")
+    @ResponsePayload
+    public GetCountryResponse getCountry(@RequestPayload GetCountryRequest request) {
+        GetCountryResponse response = new GetCountryResponse();
+        response.setCountry(countryRepository.findCountry(request.getName()));
+
+        return response;
+    }
+}
+*****
  
-**DA CONTINUARE
