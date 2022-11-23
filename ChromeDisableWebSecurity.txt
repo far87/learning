@@ -1,0 +1,11 @@
+** Aprire una istanza Chrome che consente a un front end locale di dialogare con un back locale.
+
+Da linea di comando,porsi nella directory che contiene il file chrome.exe,nel mio caso: 
+
+C:\Program Files\Google\Chrome\Application
+
+e da qui lanciare la seguente istruzione: 
+
+chrome.exe --user-data-dir="C:/Chrome dev session" --disable-web-security
+
+Si aprirà una nuova istanza di chrome che ci permetterà di efefttuare un debug locale come desiderato.
