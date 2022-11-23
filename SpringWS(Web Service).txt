@@ -13,4 +13,11 @@ In general , it's required to configure MessageDispatcherServlet both as a servl
 Then with @Endpoint class-level annotation and @payloadroot methods-level annotation we define what our service must do
 when a message with a pecific value of tag request payload root arrives.
 
+
+**Some information
+Maven has a specific archetype for springws
  
+**About SOAP
+It is a protocol to exchange information.It is primarily based on XML document over http, but also email and jms can be used.
+This protocol is based on using a wsdl file, which is a xml document specifing all data and services offered by a web service.Both client
+and server use thid document as basesi to exchange information and execute remote procedure calls.
