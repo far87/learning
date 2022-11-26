@@ -1,0 +1,100 @@
+* Remote Method Invocation Example
+	
+	Poniamoci nel classico scenario client-server.
+	Creiamo un progetto stand alone che rappresenta un client che invoca un servizio, o meglio un metodo, su un oggetto remoto. E creiamo un progetto che rappresenta il server contenente l'oggetto remoto chiamato dal client.
+	
+	Progetto client 
+	
+	Ricordiamo che client e server devono condividere l'interfaccia Remote contenente i metodi che il client può chiamare.
+	
+	EX di interfaccia remota:
+	
+	import java.rmi.Remote;
+	import java.rmi.RemoteException;
+
+	public interface HelloInterface extends Remote {
+		public String helloTo(String name) throws RemoteException;
+	}
+	
+	Ex della classe client :
+	
+	import java.net.MalformedURLException;
+	import java.rmi.Naming;
+	import java.rmi.NotBoundException;
+	import java.rmi.RemoteException;
+
+	public class Client {
+
+		public static HelloInterface hif;
+
+			public static void main(String[] args){
+			try{
+			hif= (HelloInterface) Naming.lookup("//localhost/MyServer");
+			String result=hif.helloTo(args[0]);
+			System.out.println(result);
+			}
+			catch(NotBoundException nbe){
+				nbe.printStackTrace();
+			}
+			catch(RemoteException re){re.printStackTrace();}
+			catch(MalformedURLException mue){mue.printStackTrace();}
+
+    }
+}
+
+Lato client abbiamo tutto ciò che occorre per chiamare il metodo helloTo su un remote object di tipo HelloInterface che gira sulla jvm all'indirizzo "//localhost/MyServer".
+
+Lato server :
+In un progetto diverso dobbiamo sempre definire l'interfaccia remota HelloInterface, poi definire l'oggetto che la implementa e che dunque sarà il nostro remote object.
+	
+	Ex dell'interfaccia HelloInterface:
+	
+	import java.rmi.Remote;
+	import java.rmi.RemoteException;
+
+	public interface HelloInterface extends Remote {
+		public String helloTo(String name) throws RemoteException;
+	}
+
+	Ex della classe che realizza il server e implementa la remote interface:
+		
+		import java.net.MalformedURLException;
+		import java.rmi.Naming;
+		import java.rmi.RemoteException;
+		import java.rmi.server.UnicastRemoteObject;
+
+		public class MyServer extends UnicastRemoteObject implements HelloInterface{
+
+			private static final long serialVersionUID =1L;
+			public MyServer() throws RemoteException{
+				super();
+			}
+		public String helloTo(String name) throws RemoteException {
+			System.out.println("metodo Hello chiamato con parametro: "+name);
+			return "Hello "+name;
+		}
+
+		public static void main(String[] args){
+			try {
+				Naming.rebind("//localhost/MyServer",new MyServer());
+			} catch (RemoteException e) {
+				throw new RuntimeException(e);
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+Lato server abbiamo tutto ciò che ci occorre. 
+Una volta compilate le classi , possiamo avviarle separatamente da due diversi prompt, uno per il client l'altro per il server. 
+Prima però di avviare il server è necessario da riga di comando richiamare l'istruzione rmiregistry all'interno della directory contenente i file .class.Nel nostro caso, avendo compilato con intellij la directory in questione
+sarà la directory out.
+
+Ex istruzione rmiregistry:
+	Prompt:
+		Microsoft Windows [Versione 10.0.19044.2251]
+		(c) Microsoft Corporation. Tutti i diritti sono riservati.
+		
+		C:\Users\rmaisto\Desktop\RemoteMethodInvocation\out\production\RemoteMethodInvocation>rmiregistry
+
+Dopo questa istruzione, eseguendo l'istruzione java MyServer , l'applicativo sarà in ascolto e pronto a rispondere al client.		
