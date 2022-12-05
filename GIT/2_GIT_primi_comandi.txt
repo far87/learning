@@ -1,0 +1,28 @@
+* GIT
+
+Primi comandi
+
+- config:
+utility per la configurazione di git.
+
+Esempio :
+
+git config --global user.name "Raffaele"
+
+git config --global user.mail far1987@libero.it
+
+Con le istruzioni di sopra abbiamo impostato delle configurazioni globali: ogni repository che creeremo avrà quei determinati valori per nome e mail.
+Tuttavia per ogni repository, se si vuole, è possibile sovrascrivere tali valori globali. 
+Per voler vedere le impostazioni settate, basterà da linea di comando richiamare l'istruzione: git config --list.
+
+- help:
+Il comando help è molto utile per avere informazioni sulle varie istruzioni di git.
+Ad esempio se si vuole avere una guida sul comando config possiamo da linea di comando chiamare la seguente istruzione:
+
+git help config
+
+	oppure
+	
+git config --help
+
+	

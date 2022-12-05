@@ -1,0 +1,18 @@
+* GIT
+
+Si tratta di un sistema di controllo di versione che viene principalmente utilizzato per il codice,ma può gestire qualsiasi tipo di file.
+Grazie a questo strumento si riesce a tenere traccia delle varie modifiche effettuate su un file nel corso del tempo.
+Git funziona in maniera distribuita, ogni client ha una propria copia completa dell'intero archivio, in tal modo se un server dovesse guastarsi, basterebbe 
+copiare la copia di un client verso un altro server e l'archivio si ristabilirebbe. 
+Il sistema dei rami permette di effettuare e tracciare varie operazioni in parallelo sul codice senza appesantire il sistema.
+
+Come funziona:
+A differenza di altri sistemi git non tiene traccia delle differenze tra un file originale e il file modificato, piuttosto, ad ogni cambiamento o
+meglio ad ogni commit, git effettua un'istantanea dell'intero archivio.
+Esso inoltre non è centralizzato, ovvero non necessita di interfacciarsi sempre con un server.Infatti ogni client ha la sua copia locale del repository e 
+su quella effettua le varie operazioni che poi in un secondo momento potrà caricare su un server remoto.
+I file in un archivio git possono avere tre stati: modifiede,staged e committed.
+Un archivio git è composto da tre sezioni:
+Working area: è la nostra cartella di lavoro, essa contiene tutti i file di una determinata istantanea più eventuali file aggiunti o modificati.
+Staging area: contiene file aggiunti o modificati che si vuole salvare in una nuova istantanea del repository con l'istruzione commit 
+Repository: sezione contenente tutti i dati dell'archivio, è la sezione che viene scaricata quando si clona un archivio.

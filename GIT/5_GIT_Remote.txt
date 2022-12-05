@@ -1,0 +1,14 @@
+ * GIT
+
+Remote
+I repository remote possono considerarsi come copie dei nostri repo locali in remoto,ove per remoto intendiamo sia un server remoto sia un'altra directory sullo stesso sistema.
+Sono utilissimi quando si lavora in più persone parallelamente a un progetto, e se ne vogliono condividere i progressi.
+
+[git remote]
+Lanciando l'istruzione 'git remote' dalla directory del nostro repo locale, git ci restituirà gli alias dei nostri repository remoti presenti in locale,
+SE PRESENTI, diversamente non ci restituirà nulla.
+
+Se il nostro repo locale è il frutto di una clone da un repo remoto, allora l'istruzione git remote potrebbe già tornare l'alias origin,che rappresenta 
+l'alias in locale per riferirsi al repo remoto da cui si è clonato il progetto.
+
+**Da continuare
