@@ -11,4 +11,38 @@ SE PRESENTI, diversamente non ci restituirà nulla.
 Se il nostro repo locale è il frutto di una clone da un repo remoto, allora l'istruzione git remote potrebbe già tornare l'alias origin,che rappresenta 
 l'alias in locale per riferirsi al repo remoto da cui si è clonato il progetto.
 
-**Da continuare
+[git remote add [alias] [repository address] ]
+Lanciando questa istruzione è possibile aggiungere un repository remoto in locale con quell'alias.Ovviamente il repository remoto aggiunto sarà quello
+all'indirizzo indicato [repository address]. 
+Se a questo punto lanciamo l'istruzione 'git remote' comparirà a video l'alias del repository aggiunto.
+
+[git remote --verbose]
+Con questa istruzione ci verranno restituiti gli alias e i rispettivi url.
+
+Gli alias risultano utili soprattutto quando si importano più repository remoti.
+A questo punto supponiamo di aver importato un repository remoto in locale, e di avergli assegnato l'alias 'origin', e supponiamo di voler sincronizzare
+questo repository remoto con il nostro locale. 
+
+[git push [alias] [local-branch name]]
+Con questa istruzione git caricherà il repository locale in remoto. Ancora più precisamente, git creerà, se non già presente, un ramo locale [local-branch name]
+e lo sincronizzerà con il corrispondente ramo locale.
+
+[git remote show [alias]]
+A questo punto, lanciando questa istruzione, ci comparirà un resoconto generale del nostro repository remoto, che tiene conto anche dei rami remoti
+sincronizzati con quelli in locale. 
+
+Se invece si vuole fare l'operazione inversa , ovvero caricare le modifiche fatte su un ramo remoto su un ramo locale, allora occorre chiamare l'istruzione
+pull
+
+[git pull [alias] [local-branch name]]
+chiamando questa istruzione il ramo locale verrà aggiornato e allineato con le modifiche fatte sul ramo remoto.
+
+Per completezza riportiamo altri comandi
+
+[git remote rename [alias-name] [alias-newName]]
+Come è facile intuire , questa istruzione rinomina il repository remoto assegnandogli il nuovo alias
+
+[git remote rm [alias-name]]
+L'istruzione rimuove da locale il repository remoto con quel dato alias
+
+
