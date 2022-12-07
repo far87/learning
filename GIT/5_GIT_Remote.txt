@@ -45,4 +45,4 @@ Come è facile intuire , questa istruzione rinomina il repository remoto assegna
 [git remote rm [alias-name]]
 L'istruzione rimuove da locale il repository remoto con quel dato alias
 
-
+ 
