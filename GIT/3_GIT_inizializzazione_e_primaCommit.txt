@@ -1,0 +1,45 @@
+* GIT
+
+Esistono due modi per inizializzare un repository git: creare un repo locale oppure clonare un repo già esistente da un server remote.
+
+Per creare un repo locale si usa il comando init:
+	da linea di comando: git init
+	
+l'istruzione,richiamata all'interno di una data directory,genera nella stessa cartella la cartella nascosta .git e contenente i file necessari
+per il funzionamento di git. Da questo momento in poi ogni file aggiunto o modificato sarà tracciato da git.
+
+Per clonare un repository da remoto, e precisiamo che per remoto intendiamo sia un repository su un server remoto sia un repository che si trova 
+in un'altra directory in locale, si usa l'istruzione clone:
+		da linea di comando : git clone [host-address] [directoryRepo]
+		
+l'istruzione una volta richiamata copierà l'intero repo presente sull'host specificato nella cartella directoryRepo.
+
+Commit: salvare una istantanea del repository .
+
+Ricordiamo che esistono due tipi di file: tracked e untracked.I file untracked sono quelli di cui git ignora l'esistenza.
+
+Vediamo i comandi utile per effettuare un commit:
+
+			git status: riporta lo stato attuale dei file presenti nella working directory.
+			
+			git add: permmette di aggiungere un file nella staging area(dunque da inserire nella prossima commit)
+			
+			git commit: è l'istruzione che consente di effettuare la commit e salvare una istantanea del nostro repository
+			
+			git log: ci fornisce una visione completa del nostro archivio con tutti i commit effettuati fino a quel momento
+
+Se lanciamo il comando status su un repo appena inizializzato, esso ci dirà che esiste un unico ramo master e che nessun commit è stato effettuato.
+Possiamo allora aggiungere un file alla nostra directory, un file qualsiasi, e una volta aggiunto rilanciare l'istruzione git status.
+A questo punto git ci dirà che esiste un file di tipo untracked e ci indica anche qual è.
+Possiamo decidere di aggiungere alla staging area, quindi di spostare il file in questione nello stato tracked , tramite comando git add [nomeFile].
+Lanciato il comando di sopra,se rilanciamo il comando git status, ci dirà che il file che prima compariva come untracked ora è in stato di tracked.
+Dunque sarà presente nella prossima commit.Precisiamo subito un aspetto, se adesso modifico di nuovo il file di cui ho appena fatto l'add, e chiamo
+git status, git mi tornerà una versione del mio file di tipo tracked e dunque presente nella staging area, e un'altra di tipo untracked,ovvero quella
+appena modificata.
+Se effettuiamo la commit in questa situazione, l'istantanea del nostro repository conterrà la versione tracked del file e non quella modificata.
+Se si vuole inserire nella prossima commit il file appena modificato, allora occorre chiamare su di esso di nuovo l'istruzione add. 
+Da qui chiamando il comando git commit sarà possibile salvare la prima istantanea del nostro repository contenente anche l'ultima versione modificata
+del file.Se invece non si riesegue l'istruzione add sul file,allora il nostro commit conterrà la versione precedente del nostro file.
+Ad ogni commit git associa un hash, stringa esadecimale, che lo identifica univocamente, e un messaggio che lo descrive.
+Lanciando il comando log, ci comparirà l'hash del commit, il messaggio che lo descrive, l'autore, l'ora in cui è stato fatto e altre info. 
+Se a git log aggiungiamo il parametro --stat , ci indicherà anche i file che sono stati committati.			

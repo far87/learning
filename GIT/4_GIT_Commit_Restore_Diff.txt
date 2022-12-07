@@ -1,0 +1,30 @@
+* GIT
+
+[git commit --amend]
+Git da la possibilità di evitare nuovi commit quando si vuole effettuare delle banali modifiche a determinati file: supponiamo di  aver aggiunto un file
+al nostro repository,di aver fatto una commit dopo averlo aggiunto alla staging area, e di esserci solo dopo resi conto di aver dimenticato di aggiungere
+una riga importante.Potremmo modificare il file, aggiungerlo tramite add alla staging area e poi fare un nuovo commit.Tuttavia per una sola riga, può risultare
+eccessivo salvare una nuova istantanea.Git dunque offre la possibilità di chiamare l'istruzione commit con il parametro --amend, git commit --amend.
+Chiamando questa istruzione,dopo aver modificato il file e averlo aggiunto alla staging area, git non creerà un nuovo commit ma sovrascriverà quello
+già esistente.Dunque ci ritroveremo la nuova istantanea al posto della precedente e con nuovo hash assegnatole.La stessa operazione può farsi anche nel caso in cui
+si voglia modificare il messaggio associato al commit effettuato.In questo caso si può usare la rapida istruzione ' git commit -- amend -m "[messsaggio]" ' .
+Una volta lanciata, git genererà, e sovrascriverà al precedente, un nuovo commit con un nuovo hash e il messaggio passato. 
+
+[git restore --staged ; git restore [file]]
+
+Supponiamo di aggiungere alla nostra staging area due nuovi file, File1 e File2.Supponiamo inoltre che, prima di effettuare il commit, ci rendiamo
+conto di non voler includere nel commit il File2, ma di volerlo lasciare in working directory come untracked. Git ci permette di poter effettuare questa 
+operazione tramite istruzione restore: git restore --staged File2 . Una volta lanciata, git riporterà File2 nello stato untracked. Dunque, chiamando
+l'istruzione commit, nella nuova istantanea troveremo solo File1.
+Supponiamo di trovarci nella condizione di sopra,quindi abbiamo effettuato una commit e nel nuovo commit abbiamo File1.Modifichiamo ora File1 aggiungendovi
+qualcosa. Supponiamo adesso di renderci conto che le modifiche apportate a File1 sono per qualche motivo sbagliate e di voler riottenere il file allo
+stato in cui si trova nell'ultimo commit effettuato.Git ci permette di fare ciò lanciando l'istruzione ' git restore File1 '.In questo caso il parametro
+--staged non è specificato perchè non vogliamo spostare un file dalla staging area, ma ripristinarlo dal commit.L'istruzione una volta lanciata riporterà
+File1 allo stato in cui si trovava al momento del commit.
+
+[git diff]
+
+Supponiamo ora di eseguire la commit del repository di sopra, ci ritroveremo dunque nel nuovo commit il File1.Supponiamo a questo punto di modificare il
+File1. Chiamando l'istruzione ' git diff ' , git ci mostrerà tutti i file modificati rispetto all'ultimo commit e le relative differenze.In questo caso 
+ci mostrerà solo File1, ma se avessimo modificato più file li mostrerebbe tutti. Per mostrare le differenze del solo file che ci interessa, possiamo 
+lanciare l'istruzione ' git diff [nomefile] '.

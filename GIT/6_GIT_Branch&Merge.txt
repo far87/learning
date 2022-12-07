@@ -1,0 +1,20 @@
+* GIT
+
+Branch: in Git un branch è un semplice puntatore a un particolare commit. Di default il branch che crea Git è il branch master. Head è un puntatore non a 
+un commit ma a un branch, sta ad indicare a quale ramo è collegata la nostra working directory, e quindi a quale commit.
+
+[git branch [nome-branch]]
+il comando crea un nuovo branch che punta allo stesso commit del branch da cui lanciamo il comando.
+
+[git checkout [nome-branch]]
+con questa istruzione effettuiamo lo switch al ramo indicato.In particolare la nostra head punterà al nuovo ramo e dunque i file della nostra working 
+directory saranno quelli della istantanea cui punta il nostro ramo.
+
+Dopo un branch e un checkout ci si trova nella situazione in cui due rami, di cui uno puntato a sua volta dall'head(checkout), puntano a uno stesso commit.
+Per cui, dopo aver fatto i dovuti e voluti cambiamenti, eseguendo una commit , otterremo una nuova istantanea questa volta però puntata dal solo ramo 
+su cui abbiamo effettuato il checkout ,l'altro ramo resterà sulla istantanea precedente.
+
+[git branch -d [branch-name]]
+con questo comando stiamo eliminando il branch branch-name.
+
+Una delle principali funzionalità di git è quella dell'unione di più rami, operazione nota come merge.
