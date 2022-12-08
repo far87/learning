@@ -18,3 +18,19 @@ su cui abbiamo effettuato il checkout ,l'altro ramo resterà sulla istantanea pr
 con questo comando stiamo eliminando il branch branch-name.
 
 Una delle principali funzionalità di git è quella dell'unione di più rami, operazione nota come merge.
+
+[git merge [branch-name]]
+con questa operazione git effettua una unione tra il ramo su cui ci si trova e il ramo che viene dato nell'istruzione.
+Git effettua questa operazione in diversi modi a seconda delle posizioni che i due rami occupano nell'albero delle commit del nostro repository.
+Ad esempio, se effettuiamo una merge tra due rami che puntano a due commit che si trovano sulla stessa linea immaginaria , per meglio intenderci non 
+paralleli, allora git effettuerà una merge in modalità fast-forward, ovvero sposterà il ramo dal primo commit al commit puntato dal secondo ramo.Al
+termine entrambi i rami punteranno allo stesso commit. Il discorso cambia completamente se i due rami sono paralleli, allora git creerà un terzo commit
+che sarà dato dall'unione dei due e a cui punterà il ramo su cui è chiamata la merge. Tuttavia, possono verificarsi alcuni problemi,o per meglio dire 
+alcuni conflitti. Se infatti nei due commit paralleli che si intende "mergiare" è stato modificato uno stesso file in uno stesso punto, Git non 
+effettuerà la merge e informerà l'utente di un merge-conflict che l'utente deve risolvere.Git specificherà anche dove si trova il conflitto.
+Git lascierà il ramo corrente su cui è stata chiamata la merge in una sorta di limbo, uno stato definito da Git (master|merging), dove si attende 
+la risoluzione del conflitto da parte dell'utente per poi effettuare la merge. L'utente a questo punto potrà accedere ai file che contengono il 
+conflitto e "risolvere" tale conflitto definendo la versione finale del file da portare nella prossima commit.Git in questa fase aiuta l'utente 
+mostrando all'interno dello stesso file la versione di entrambi i commit.Una volta che l'utente avrà risolto il conflitto e dunque salvato una nuova 
+versione del file, e aggiunta questa nella staging area con l'istruzione add e "committato", la merge sarà conclusa.Verrà creato dunque un nuovo commit,
+puntato dal ramo su cui è stata chiamata la merge , che avrà due commmit padre. 
