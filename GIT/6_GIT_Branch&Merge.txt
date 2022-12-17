@@ -14,6 +14,9 @@ Dopo un branch e un checkout ci si trova nella situazione in cui due rami, di cu
 Per cui, dopo aver fatto i dovuti e voluti cambiamenti, eseguendo una commit , otterremo una nuova istantanea questa volta però puntata dal solo ramo 
 su cui abbiamo effettuato il checkout ,l'altro ramo resterà sulla istantanea precedente.
 
+[git checkout -b [nome-branch-locale] [nome-branch-remoto]]
+Con questa istruzione git crea un nuovo ramo locale copiandolo dal ramo remoto indicato ed effettua un checkout su questo.
+
 [git branch -d [branch-name]]
 con questo comando stiamo eliminando il branch branch-name.
 
