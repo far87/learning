@@ -1,0 +1,24 @@
+* ServiceLoader JAVA
+
+Il ServiceLoader del package java.util è una classe che implementa la logica della dependency injection.
+Più precisamente, invocando il metodo statico load della classe ServiceLoader e fornendo a questo come parametro il .class della interfaccia o classe astratta , il metodo caricherà in una struttura dati iterabile tutte le implementazioni della interfaccia o classe astratta disponibili nel classpath. Scorrendo poi tale struttura dati, essendo questa iterabile,sarà possibile accedere ad ognuna delle implementazioni caricate.
+
+E.x:
+public class App {
+    public static void main(String[] args){
+        ServiceLoader<Accounting> sl=ServiceLoader.load(Accounting.class);
+        Iterator<Accounting> it=sl.iterator();
+        while(it.hasNext()){
+        Accounting acc=it.next();
+        long b= acc.getBalance();
+        System.out.print(b);
+        }
+    }
+}
+
+Al fine del corretto funzionamento è necessario che i vari jar nel classpath che contengono le implementazioni della interfaccia o classe astratta, contengano al loro interno la directory META-INF/services con all'interno un file il cui nome deve essere uguale al fully qualified name della interfaccia o classe astratta e che all'interno di questo file vengano riportati i fully qualified name delle varie classi che implementano l'interfaccia o classe astratta.In assenza di tali file il ServiceLoader non riuscirà a caricare le implementazioni.
+
+pathfile:    META-INF/services/interfacename
+
+Come fare per creare un jar che contiene la cartella di cui sopra?
+Utilizzando Maven, basta inserire la cartella e il file al suo interno , nella directory src/main/resources.A questo punto richiamando l'istruzione package di maven , il jar creato conterrà la cartella di cui sopra.

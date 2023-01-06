@@ -1,0 +1,46 @@
+* ECCEZIONI IN JAVA
+
+In Java le eccezioni sono degli oggetti. Essi vengono istanziati per gestire situazioni anomale. Nel gergo si dice
+che una eccezione viene sollevata (throws).Dunque quando in un determinato punto del programma in esecuzione si verifica
+una situazione anomala o indesiderata, il programma può sollevare una eccezione. L'eccezione a quel punto deve essere 
+gestita.Più precisamente essa può essere catturata(catch) e una volta catturata gestita, oppure può essere rimandata
+al chiamante, ovvero fare in modo che il chiamante decida come gestirla. ùdunque se un metodo invocato solleva una eccezione, essa viene propagata ai vari chiamanti fino a quando qualcuno tra questi decide di farse carico. Se nessuno tra i chiamanti si farà carico dell'eccezione allora provvederà la jvm a gestirla stampando a video lo stacktrace.
+Essendo le eccezioni degli oggetti, esiste una gerarchia di classi. La più generica è la classe Throwable,la quale viene estesa dalle classi Exception e Error. La classe Error è rappresentativa di errori di sistema che si verificano a runtime e che non possono essere gestiti.Per tale motivo , quando si parla di eccezioni in java, ci si riferisce alle sottoclassi della classe Exception. A sua volta la classe Exception è estesa da altre sottoclassi come le classi IOException e RunTimeException. Una distinzione molto importante da fare è quella tra checked e unchecked exceptions. Le checked exceptions sono quelle eccezioni che devono essere gestite altrimenti il compilatore restituisce un errore.Sono tutte quelle eccezioni che sono istanze o direttamente della classe generale Exception o di tutte le altre sottoclassi tranne che la sottoclasse RunTimeException.Dunque come è immediato comprendere, le eccezioni che sonoistanze della classe RunTimeException o di sue sottoclassi, sono eccezioni unchecked e non devono essere gestire obbligatoriamente.
+Come si gestisce una eccezione checked:
+se invochiamo un metodo che solleva una checked exception , allora o dichiariamo nella signature del metodo tramite la clausola throws che il metodo solleva la specifica eccezione, oppure decidiamo di gestire la specifica eccezione eseguendo il metodo in un blocco try catch.
+ex:
+
+1:
+public void metodoChiamante() throws CheckedException {
+	metodoChiamato();
+}
+
+2:
+public void metodoChiamante(){
+	try{
+		metodoChiamato();	
+	}
+	catch(CheckedException e){
+		handle(e);
+	}
+}
+Se invece scriviamo un metodo che in determinate circostanze solleva una eccezione di tipo checked, allora dobbiamo specificando nella throws clause, e.x.:
+			public void metodo()throws Exception{
+				if(condizione)
+					throw new Exception();
+			}
+
+Per quanto detto,metodi che sollevano checked exceptions non possono essere utilizzati per inizializzare i campi di una classe. Vediamo un caso particolare:
+
+public class Prova{
+	private static final InputStream is; // se facessi '=new FileInputStream(" ")' mi darebbe errore di compilazione
+	static{
+	InputStream os=null;
+	try{
+		os=new FileInputStream("");
+	}
+	catch(FileNotFoundException e){}
+	is=os;
+	}
+}
+L'esempio oltre a gestire la checked exception, gestisce anche l'impossibilità di poter effettuare più operazioni di assegnazione sulla variabile is, essendo questa final.
