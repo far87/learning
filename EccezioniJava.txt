@@ -30,3 +30,17 @@ Se invece scriviamo un metodo che in determinate circostanze solleva una eccezio
 					throw new Exception();
 			}
 
+Per quanto detto,metodi che sollevano checked exceptions non possono essere utilizzati per inizializzare i campi di una classe. Vediamo un caso particolare:
+
+public class Prova{
+	private static final InputStream is; // se facessi '=new FileInputStream(" ")' mi darebbe errore di compilazione
+	static{
+	InputStream os=null;
+	try{
+		os=new FileInputStream("");
+	}
+	catch(FileNotFoundException e){}
+	is=os;
+	}
+}
+L'esempio oltre a gestire la checked exception, gestisce anche l'impossibilità di poter effettuare più operazioni di assegnazione sulla variabile is, essendo questa final.
