@@ -1,0 +1,51 @@
+* AES (Advances Encryption Standard) JAVA
+
+AES è uno standard che viene utilizzato per implementare la "criptazione" dei dati al fine di proteggerli da eventuali attacchi. Da un punto di vista generale esso suddivide i file da criptare in blocchi dalla dimensione fissata di bit e su ognuno di questi effettua le varie trasformazioni. La logica implementativa varia a seconda della modalità di esecuzione scelta: ECB,CBC,etc.
+La cosa importante è che sia in fase di encryption che in fase di decryption bisogna possedere la stessa chiave.
+
+Come abbiamo detto,AES agisce su blocchi di bit di dimensione fissa.Allora cosa accade se l'ultimo blocco non è della dimensione stabilita? Entra in gioco il padding.Si tratta di una operazione di riempimento dei bit restanti e vuoti.Anche il padding può essere effettuato in diverse modalità.
+
+Vediamo un esempio di programma Java che effettua la encryption e la decryption di una stringa, utilizzando le tecnologie del package java.crypto e java.security:
+
+**
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.spec.IvParameterSpec;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Key;
+import java.security.SecureRandom;
+**
+...
+...
+public static void main(String[] args)throws Exception {
+
+        String toBeEncrypted="Voglio essere criptata";
+        /*Generiamo la chiave*/
+        KeyGenerator keyGenerator=KeyGenerator.getInstance("AES");
+        keyGenerator.init(192); //size della kiave
+        Key key=keyGenerator.generateKey();
+
+        /*Generiamo IV (inizialization vector) usato solo per la modalità CBC (NO per ECB)*/
+        SecureRandom secureRandom =  SecureRandom.getInstance("SHA1PRNG");
+        byte[] random = new byte[16];
+        secureRandom.nextBytes(random);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(random);
+
+        /*Effettuiamo l'encryption*/
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE,key, ivParameterSpec);
+        byte[] encrypted = cipher.doFinal(toBeEncrypted.getBytes());
+
+        System.out.print(new String(encrypted));
+
+        /*Effettuiamo la decription con stampa*/
+        Cipher cipher2 = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE,key, ivParameterSpec);
+        byte[] decryptedInput = cipher.doFinal(encrypted);
+
+        System.out.print(new String(decryptedInput));
+
+    }
