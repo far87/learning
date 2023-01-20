@@ -1,0 +1,178 @@
+* Custom Java Annnotation (Esempio pratico)
+
+Quella delle annotations è una tecnologia che è stata introdotta in Java a partire dalla versione 1.5 del JDK.
+Le annotations possono essere utilizzate per diversi scopi e in diversi momenti: a compile-time o runtime.
+Nel primo caso, compile-time,sono soprattutto utilizzate per la generazione automatica di codice sorgente grazie all'utilizzo delle language model API. 
+Nel secondo caso invece, ovvero a Runtime, sono utilizzate per diversi scopi e grazie alle reflection API messe a disposizione da Java.
+
+Entriamo nel dettaglio e vediamo subito un esempio di custom annotation elaborate a runtime.
+
+Supponiamo di voler definire un metodo che, dato in ingresso un oggetto di una data classe,ci restituisca la stringa che rappresenta l'oggetto in formato json.Supponiamo inoltre che questo metodo agisca solo su determinate classi e che inserisca nel json in uscita solo determinati campi dell'oggetto.
+Per ottenere un tale obiettivo possiamo fare uso delle annotation, in questo caso di custom annotations.
+Ma entriamo subito nel pratico.
+
+Definiamo una annotation che agisce a livello di classe e che identifichi la classe come "json-serializzabile" (lasciatemi passare il termine :) ).In tal modo, se la nostra classe presenta tale annotation, potrà essere sottoposta al processo di "jsonificazione". 
+Chiamiamo l'annotation @JsonSerializable:
+
+	import java.lang.annotation.ElementType;
+	import java.lang.annotation.Retention;
+	import java.lang.annotation.RetentionPolicy;
+	import java.lang.annotation.Target;
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface JsonSerializable {
+	}
+	
+Le annotation @Target e @Retention servono a definire alcuni comportamenti della nostra annotation.Senza entrare troppo nel dettaglio: @Target definisce lo scope della nostra annotation, ovvero dove può essere inserita e, nel caso in questione, a livello di classe,enum o interfaccia;@Retention definisce l'ambiente in cui la nostra annotation viene utilizzata e nel nostro caso è a Runtime.
+
+Definiamo inoltre una annotation a livello di campo.La presenza di tale annotation indicherà che il campo deve rientrare nel json.Faccciamo anche in modo che la nostra annotation abbia un attributo, key , che indica la label che deve essere presente nel json insieme al valore del campo (Ricordiamo che il json è un formato del tipo{chiave:valore}).
+Chiamiamo l'annotation @JsonSerializeField:
+	
+	import java.lang.annotation.ElementType;
+	import java.lang.annotation.Retention;
+	import java.lang.annotation.RetentionPolicy;
+	import java.lang.annotation.Target;
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface JsonSerializeField {
+		public String key() default "";
+	}
+
+Definiamo anche una annotation a livello di metodo,che identifichi un particolare metodo di inizializzazione,il quale verrà richiamato sull'oggetto prima della procedura di jsonificazione.
+Chiamiamo questa annotation @InitSerialize.
+	
+	import java.lang.annotation.ElementType;
+	import java.lang.annotation.Retention;
+	import java.lang.annotation.RetentionPolicy;
+	import java.lang.annotation.Target;
+	
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface InitSerialize {
+	}
+	
+Giunti a questo punto,abbiamo definito le annotations che ci servono e possiamo andare a definire la classe che si occuperà di processare,utilizzando il meccanismo della Reflection messo a disposizione da Java,le classi annotate.
+
+Chiamiamo la classe in questione Jsonizer, e facciamo in modo che abbia un metodo pubblico,il quale ricevuto un oggetto come parametro di ingresso,ci restituisca il json dell'oggetto in formato stringa,sempre che la classe di cui l'oggetto è istanza sia annotata con @JsonSerializable.Procediamo:
+
+	import prova.annotation.InitSerialize;
+	import prova.annotation.JsonSerializable;
+	import prova.annotation.JsonSerializeField;
+	import java.lang.reflect.Field;
+	import java.lang.reflect.Method;
+	
+	public class Jsonizer {
+	
+		private boolean isJsonSerializable(Object object){
+			if(object != null) {
+				Class<?> clazz = object.getClass();
+				return clazz.isAnnotationPresent(JsonSerializable.class);
+			}
+			throw new RuntimeException("The object to be jsonSerialized cannot be null");
+		}
+	
+		private void initObject(Object object)throws Exception{
+			Class<?> clazz=object.getClass();
+			Method[] methods=clazz.getDeclaredMethods();
+			for(Method method:methods){
+				if(method.isAnnotationPresent(InitSerialize.class)){
+					method.setAccessible(true);
+					method.invoke(object);
+				}
+			}
+		}
+	
+		private String getJsonString(Object object)throws Exception{
+			Class<?> clazz=object.getClass();
+			Field[] fields=clazz.getDeclaredFields();
+			String jsonString="{";
+			for(Field field:fields){
+				field.setAccessible(true);
+				if(field.isAnnotationPresent(JsonSerializeField.class)){
+					JsonSerializeField jsf=field.getAnnotation(JsonSerializeField.class);
+					jsonString+=jsf.key()+":"+(String)field.get(object)+",";
+				}
+			}
+			jsonString=jsonString.substring(0,jsonString.length()-1)+"}";
+			return jsonString;
+		}
+	
+		public String jsonize(Object object)throws Exception{
+			isJsonSerializable(object);
+			initObject(object);
+			return getJsonString(object);
+		}
+	}
+
+Definite le custom annotations e la classe che si occuperà di processarle, non ci resta che definire una classe annotata.
+Usiamo un esempio molto semplice, la classe Persona:
+
+	import prova.annotation.InitSerialize;
+	import prova.annotation.JsonSerializable;
+	import prova.annotation.JsonSerializeField;
+	
+	@JsonSerializable
+	public class Persona {
+	
+		@JsonSerializeField(key = "nome")
+		private String nome;
+		@JsonSerializeField(key = "cognome")
+		private String cognome;
+		
+		private String address;
+	
+		public String getNome() {
+			return nome;
+		}
+	
+		public void setNome(String nome) {
+			this.nome = nome;
+		}
+	
+		public String getCognome() {
+			return cognome;
+		}
+	
+		public void setCognome(String cognome) {
+			this.cognome = cognome;
+		}
+	
+		public String getAddress() {
+			return address;
+		}
+	
+		public void setAddress(String address) {
+			this.address = address;
+		}
+		@InitSerialize
+		private void init(){
+			this.nome=this.nome.substring(0,1).toUpperCase()+this.nome.substring(1);
+			this.cognome=this.cognome.substring(0,1).toUpperCase()+this.cognome.substring(1);
+		}
+	}
+
+La nostra classe Persona è json-serializzabile, lo saranno i campi nome e cognome e ,prima del processo di jsonificazione, il campo nome e quello cognome verranno modificati per avere le iniziali in maiuscolo.
+
+A questo punto non ci resta che testare il tutto in un main:
+		
+		public static void main(String[] args){
+				try {
+					Persona persona = new Persona();
+					persona.setNome("Antonio");
+					persona.setCognome("rossi");
+					persona.setAddress("via Roma,Milano");
+					Jsonizer jsonizer = new Jsonizer();
+					System.out.print(jsonizer.jsonize(persona));
+				}
+				catch (Exception e){
+					System.out.println(e.getMessage());
+				}
+			} 
+
+
+A voi l'output...
+  
+
+
