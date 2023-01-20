@@ -1,0 +1,194 @@
+* Custom Java Annotation (source level processing)
+
+Quando parliamo di source level processing nell'ambito delle annotation in java, ci riferiamo a un procedimento che ha luogo a compile time.Quindi è il compilatore,javac,che individua e processa le annotations .Esso serve per la generazione automatica di file,principalmente file .java, ma può generare anche altri tipi di file.Partiamo subito col dire che tale tecnologia permette la generazione di file nuovi e non consente la modifica di file già esistenti.
+
+Entriamo subito nel pratico.
+Poniamoci nel caso in cui si voglia,per determinate classi, creare dei builder appositi che rendano l'istanziazione dei corrispondenti oggetti più fluida e rapida. Per esempio, presa la seguente classe Persona:
+	
+	public class Persona{
+		String nome;
+		String cognome;
+		...
+		... //getter and setter
+	}
+	
+si vuole una istanziazione del tipo:
+
+	public static void main(String[] args){
+		Persona persona=new PersonaBuilder()
+						.setNome("Paolo")
+						.setCognome("Rossi")
+						.build();
+	}
+
+Piuttosto che andare a scrivere a mano la classe di builder , si preferisce definire un meccanismo generico,che sia in grado di generare automaticamente tali classi di builder per quelle classi annotate in un determinato modo.
+Ovvero , supponiamo che la nostra classe persona abbia l'annotation @CreateBuilder sui metodi setter dei propri campi,e che tale annotation basti a definire la corrispondente classe di builder che poi possiamo richiamare per l'istanziazione.
+E.X:
+
+	public class Persona{
+		
+		String nome;
+		String cognome;
+		
+		@CreateBuilder
+		void setNome(String nome){
+			this.nome=nome;
+			}
+		@CreateBuilder	
+		void setCognome(String cognome){
+			this.cognome=cognome;
+			}	
+	}
+	
+Quello che dunque adesso occorre fare è creare la nostra custom annotation @CreateBuilder e definire il corrispondente processor, ovvero la classe Java contenente la logica da applicare alle classi che contengono la nostra annotation.
+Una annotation senza un processor è praticamente inutile.
+E' buona norma definire due diversi progetti maven: annotation-proccessor e annotation-user.
+
+Partiamo con il primo progetto annotation-processor, che conterrà la definizione della nostra annotation e del corrispondente processor.
+
+Creiamo un progetto Maven che abbia la seguente dipendenza:
+			
+			<dependency>
+				<groupId>com.google.auto.service</groupId>
+				<artifactId>auto-service</artifactId>
+				<version>${auto-service.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+si tratta di una libreria Google che ci servirà per la generazione dei metadati del processor.	
+La properties ${auto-service.version} possiamo settarla a 1.0-rc2 .
+Definiamo ora nel progetto un package org.annotation e all'interno di esso definiamo l'annotation @CreateBuilder:
+
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			
+			@Retention(RetentionPolicy.SOURCE)
+			@Target(ElementType.METHOD)
+			public @interface CreateBuilder {
+			}
+			
+Il significato delle annotation Target e Retention è già stato spiegato nell'esempio 1.
+Definita l'annotation, non ci resta che definire l'apposito processor. Un processor è una classe Java che implementa l'interfaccia Processor o anche che estende la classe astratta AbstractProcessor.Il nostro esempio rientra in quest'ultimo caso:
+			
+			import com.google.auto.service.AutoService;
+			import javax.annotation.processing.*;
+			import javax.lang.model.SourceVersion;
+			import javax.lang.model.element.Element;
+			import javax.lang.model.element.TypeElement;
+			import javax.lang.model.type.ExecutableType;
+			import javax.tools.JavaFileObject;
+			import java.io.IOException;
+			import java.io.PrintWriter;
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.Set;
+			import java.util.stream.Collectors;
+			
+			@SupportedAnnotationTypes("org.annotation.CreateBuilder")
+			@SupportedSourceVersion(SourceVersion.RELEASE_11)
+			@AutoService(Processor.class)
+			public class BuilderProcessor extends AbstractProcessor {
+				@Override
+				public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+					for(TypeElement te : annotations) {
+						Set<? extends  Element> elements=  roundEnv.getElementsAnnotatedWith(te);
+						List<Element> listElements=new ArrayList<>();
+						for(Element e : elements)
+							listElements.add(e);
+						/*Ricaviamo il nome della classe*/
+					String className = ((TypeElement)listElements.get(0).getEnclosingElement()).getQualifiedName().toString();
+					/*Recuperiamo nome dei setter e i parametri dei setter*/
+					Map<String, String> setterMap = listElements.stream().collect(Collectors.toMap(
+								setter -> setter.getSimpleName().toString(),
+								setter -> ((ExecutableType) setter.asType())
+										.getParameterTypes().get(0).toString()
+						));
+						try {
+							writeBuilderFile(className, setterMap);
+						}
+						catch (IOException e){
+							System.out.println(e.getMessage());
+						}
+					}
+					return false;
+				}
+				/* metodo per la generazione del codice sorgente */
+				private void writeBuilderFile(
+						String className, Map<String, String> setterMap)
+						throws IOException {
+			
+					String packageName = null;
+					int lastDot = className.lastIndexOf('.');
+					if (lastDot > 0) {
+						packageName = className.substring(0, lastDot);
+					}
+			
+					String simpleClassName = className.substring(lastDot + 1);
+					String builderClassName = className + "Builder";
+					String builderSimpleClassName = builderClassName
+							.substring(lastDot + 1);
+			
+					JavaFileObject builderFile = processingEnv.getFiler()
+							.createSourceFile(builderClassName);
+			
+					try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
+			
+						if (packageName != null) {
+							out.print("package ");
+							out.print(packageName);
+							out.println(";");
+							out.println();
+						}
+			
+						out.print("public class ");
+						out.print(builderSimpleClassName);
+						out.println(" {");
+						out.println();
+			
+						out.print("    private ");
+						out.print(simpleClassName);
+						out.print(" object = new ");
+						out.print(simpleClassName);
+						out.println("();");
+						out.println();
+			
+						out.print("    public ");
+						out.print(simpleClassName);
+						out.println(" build() {");
+						out.println("        return object;");
+						out.println("    }");
+						out.println();
+			
+						setterMap.entrySet().forEach(setter -> {
+							String methodName = setter.getKey();
+							String argumentType = setter.getValue();
+			
+							out.print("    public ");
+							out.print(builderSimpleClassName);
+							out.print(" ");
+							out.print(methodName);
+			
+							out.print("(");
+			
+							out.print(argumentType);
+							out.println(" value) {");
+							out.print("        object.");
+							out.print(methodName);
+							out.println("(value);");
+							out.println("        return this;");
+							out.println("    }");
+							out.println();
+						});
+			
+						out.println("}");
+					}
+				}
+			}
+			
+Partiamo dalle annotation definite a livello di classe:
+@SupportedAnnotationTypes("org.annotation.CreateBuilder") : definisce l'annotation cui il processor si riferisce
+@SupportedSourceVersion(SourceVersion.RELEASE_11 : definisce l'ultima versione che il proccessor supporta
+@AutoService(Processor.class) : annotation importata che definisce i metadati del nostro proccessor
