@@ -41,7 +41,7 @@ E.X:
 	}
 	
 Quello che dunque adesso occorre fare è creare la nostra custom annotation @CreateBuilder e definire il corrispondente processor, ovvero la classe Java contenente la logica da applicare alle classi che contengono la nostra annotation.
-Una annotation senza un processor è praticamente inutile.
+Una annotation,senza un processor, è praticamente inutile.
 E' buona norma definire due diversi progetti maven: annotation-proccessor e annotation-user.
 
 Partiamo con il primo progetto annotation-processor, che conterrà la definizione della nostra annotation e del corrispondente processor.
@@ -192,3 +192,41 @@ Partiamo dalle annotation definite a livello di classe:
 @SupportedAnnotationTypes("org.annotation.CreateBuilder") : definisce l'annotation cui il processor si riferisce
 @SupportedSourceVersion(SourceVersion.RELEASE_11 : definisce l'ultima versione che il proccessor supporta
 @AutoService(Processor.class) : annotation importata che definisce i metadati del nostro proccessor
+
+L'implementazione del metodo utilizza le api del package java.lang.model.Tale package ha le classi per trattare gli elementi dei file sorgente,che ricordiamo essere comunque file di testo, e poter da questi ricavare le dovute informazioni.Ad esempio la classe TypeElement rappresenta o la classe o l'interfaccia,ExecutableElement invece rappresenta un metodo.
+Ricavato il nome della classe e i setter con i rispettivi parametri , non resta che chiamare il metodo writeBuilderFile e scrivere la classe builder.
+
+Una volta scritto il processor,non ci resta che bildare il nostro progetto annotation-proccessor , ovvero far partire la install di maven.
+
+A questo punto creiamo il nostro progetto maven annotation-user e inseriamo nel pom la dipendenza dal progetto annotation-proccessor.
+
+Definiamo al suo interno la classe Persona:
+
+	public class Persona {
+		String nome;
+		String cognome;
+	
+		@CreateBuilder
+		public void setNome(String nome) {
+			this.nome = nome;
+		}
+		@CreateBuilder
+		public void setCognome(String cognome) {
+			this.cognome = cognome;
+		}
+
+	}
+	
+A questo punto definiamo la classe che contiene il main:
+
+		import package_name.PersonaBuilder
+		...
+		...
+		public static void main(String[] args){
+			Persona persona=new PersonaBuilder().setNome("Luigi").setCognome("Rossi").build();
+			}
+			
+l'ide ci fornirà un errore di compilazione dal momento che la classe Personabuilder non è ancora generata.
+Ovviamente la classe contenente il main dovrà possedere anche il corrispondente import: import package_name.PersonaBuilder.
+
+Chiamando run sul main , il javac individuerà le annotation e farà partire il processor.Al termine di questa task, il file PersonaBuilder ,generato nello stesso package della classe Persona, verrà aggiunto al progetto e compilato insieme alle altre classi.Di conseguenza anche il metodo main verrà eseguito senza problemi.
