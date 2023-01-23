@@ -22,7 +22,7 @@ si vuole una istanziazione del tipo:
 	}
 
 Piuttosto che andare a scrivere a mano la classe di builder , si preferisce definire un meccanismo generico,che sia in grado di generare automaticamente tali classi di builder per quelle classi annotate in un determinato modo.
-Ovvero , supponiamo che la nostra classe persona abbia l'annotation @CreateBuilder sui metodi setter dei propri campi,e che tale annotation basti a definire la corrispondente classe di builder che poi possiamo richiamare per l'istanziazione.
+Ovvero , supponiamo che la nostra classe Persona abbia l'annotation @CreateBuilder sui metodi setter dei propri campi,e che tale annotation basti a definire la corrispondente classe di builder che poi possiamo richiamare per l'istanziazione.
 E.X:
 
 	public class Persona{
@@ -41,7 +41,7 @@ E.X:
 	}
 	
 Quello che dunque adesso occorre fare è creare la nostra custom annotation @CreateBuilder e definire il corrispondente processor, ovvero la classe Java contenente la logica da applicare alle classi che contengono la nostra annotation.
-Una annotation,senza un processor, è praticamente inutile.
+Una annotation senza un processor è un'annotation praticamente inutile.
 E' buona norma definire due diversi progetti maven: annotation-proccessor e annotation-user.
 
 Partiamo con il primo progetto annotation-processor, che conterrà la definizione della nostra annotation e del corrispondente processor.
@@ -69,7 +69,7 @@ Definiamo ora nel progetto un package org.annotation e all'interno di esso defin
 			public @interface CreateBuilder {
 			}
 			
-Il significato delle annotation Target e Retention è già stato spiegato nell'esempio 1.
+Il significato delle annotation Target e Retention è già stato spiegato nell'esempio CustomAnnotationExampleJava.
 Definita l'annotation, non ci resta che definire l'apposito processor. Un processor è una classe Java che implementa l'interfaccia Processor o anche che estende la classe astratta AbstractProcessor.Il nostro esempio rientra in quest'ultimo caso:
 			
 			import com.google.auto.service.AutoService;
@@ -193,10 +193,10 @@ Partiamo dalle annotation definite a livello di classe:
 @SupportedSourceVersion(SourceVersion.RELEASE_11 : definisce l'ultima versione che il proccessor supporta
 @AutoService(Processor.class) : annotation importata che definisce i metadati del nostro proccessor
 
-L'implementazione del metodo utilizza le api del package java.lang.model.Tale package ha le classi per trattare gli elementi dei file sorgente,che ricordiamo essere comunque file di testo, e poter da questi ricavare le dovute informazioni.Ad esempio la classe TypeElement rappresenta o la classe o l'interfaccia,ExecutableElement invece rappresenta un metodo.
+L'implementazione del metodo processor utilizza le api del package java.lang.model.Tale package ha le classi per trattare gli elementi dei file sorgente,che ricordiamo essere comunque file di testo, e poter da questi ricavare le dovute informazioni.Ad esempio la classe TypeElement rappresenta o la classe o l'interfaccia,ExecutableElement invece rappresenta un metodo.
 Ricavato il nome della classe e i setter con i rispettivi parametri , non resta che chiamare il metodo writeBuilderFile e scrivere la classe builder.
 
-Una volta scritto il processor,non ci resta che bildare il nostro progetto annotation-proccessor , ovvero far partire la install di maven.
+Una volta scritto il processor,"bildiamo" il nostro progetto annotation-proccessor , ovvero facciamo partire la install di maven.
 
 A questo punto creiamo il nostro progetto maven annotation-user e inseriamo nel pom la dipendenza dal progetto annotation-proccessor.
 
@@ -229,4 +229,4 @@ A questo punto definiamo la classe che contiene il main:
 l'ide ci fornirà un errore di compilazione dal momento che la classe Personabuilder non è ancora generata.
 Ovviamente la classe contenente il main dovrà possedere anche il corrispondente import: import package_name.PersonaBuilder.
 
-Chiamando run sul main , il javac individuerà le annotation e farà partire il processor.Al termine di questa task, il file PersonaBuilder ,generato nello stesso package della classe Persona, verrà aggiunto al progetto e compilato insieme alle altre classi.Di conseguenza anche il metodo main verrà eseguito senza problemi.
+Chiamando run sul main , il javac individuerà le annotation e farà partire il processor.Al termine di questa task, il file PersonaBuilder.java ,generato nello stesso package della classe Persona, verrà aggiunto al progetto e compilato insieme alle altre classi.Di conseguenza anche il metodo main verrà eseguito senza problemi.
