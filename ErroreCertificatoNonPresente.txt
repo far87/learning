@@ -1,0 +1,20 @@
+Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+Questa eccezione compare quando il nostro applicativo java cerca di stabilire una connessione a un server di cui non si dispone del certificato.
+Ciò che occore fare è inserire all'interno del keystore della jvm il suddetto certificato.
+Entriamo nel pratico. La prima cosa da fare è ottenere il certificato in questione. Uno dei modi possibili è quello di usare il browser.Se ad esempio usiamo chrome, una volta effettuata la chiamata all'url, è possibile cliccare sul luccheto posto alla sinistra della barra contenente l'url chiamato. Da qui si può cliccare sulla voce "la connessione è sicura" e poi sulla voce "il certificato è valido".A questo punto si apre il pop up "Visualizzatore certificati" e andando sul tab Dettagli sarà possibile cliccare sul tasto esporta.Da qui dopo aver definito la directory in cui esportare il certificato ,l'operazione sarà terminata.
+Cliccando sul certificato appena scaricato, sarà possibile effettuare operazioni che consentono la formattazione del certificato in formato ".cer".Si aprirà una finestra su cui sarà possibile selezionare il tab dettagli.In questo tab cliccando sul tasto in basso a destra "copia su file" e selezionando il formato DER X.509 si otterrà il certificato nel formato desiderato.
+
+Giunti a questo punto occorre caricare il certificato ottenuto nel keystore della jvm. Il keystore si trova di solito al path "%/JAVA_HOME%/jre/lib/security/cacerts".
+Per fare ciò, possiamo lanciare il prompt dei comandi in modalità amministratore dalla folder che contiene il certificato ,il quale certificato per esempio chiamiamo certificato.cer, e lanciare il seguente comando:
+keytool -import -alias alias -keystore "%JAVA_HOME%\jre\lib\security\cacerts" -file "certificato.cer"
+
+-alias indica l'alias con cui si vuole salvare il file nel keystore.
+-file come intuitivo indica il nome del file
+
+A questo punto riavviando la jvm sarà possibile effettuare la chiamata.
+	
+Come ulteriore verifica è possibile lanciare il comando che segue per ottenere la lista dei certificati contenuti nel keystore della jvm:
+
+keytool -list -keystore "%JAVA_HOME%/jre/lib/security/cacerts
+

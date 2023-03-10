@@ -1,0 +1,10 @@
+JAVA EE NOTE:
+
+import javax.annotation.PostConstruct
+
+@PostConstruct:
+L'annotazione PostConstruct è utilizzata per un metodo che deve essere eseguito dopo l'iniezione di dipendenza per eseguire qualsiasi inizializzazione. Questo metodo DEVE essere invocato prima che la classe sia messa in servizio. Questa annotazione DEVE essere supportata da tutte le classi che supportano l'iniezione di dipendenze. Il metodo annotato con PostConstruct DEVE essere invocato anche se la classe non richiede alcuna risorsa da iniettare. Solo un metodo può essere annotato con questa annotazione
+
+javax.ejb.Startup
+@Startup:
+Il contenitore EJB è responsabile di determinare quando inizializzare un'istanza di un bean , a meno che la classe di implementazione del  bean non sia annotata con l'annotazione javax.ejb.Startup. In questo caso, talvolta chiamato inizializzazione eager, il contenitore EJB deve inizializzare il bean all'avvio dell'applicazione. Il bean viene inizializzato prima che il contenitore EJB invii le richieste del client a tutti i bean  dell'applicazione. Ciò consente al bean di eseguire, ad esempio, le attività di avvio dell'applicazione.

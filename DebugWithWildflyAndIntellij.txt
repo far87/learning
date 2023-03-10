@@ -4,7 +4,7 @@ Prima di procedere a debuggare una applicazione è necessario verificare che la 
 
 A tal proposito dunque , l'istanza wildfly deve essere avviata ina una precisa configurazione: 
 
-occorre dunque modificare il file standalone.cong.bat aggiungendo all'istruzione set "JAVA_OPTS= i seguenti attributi: -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n
+occorre dunque modificare il file standalone.conf.bat aggiungendo all'istruzione set "JAVA_OPTS= i seguenti attributi: -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n
 
 Dunque l'istruzione set JAVA_OPTS diventa, nel caso mio in questione :
 
